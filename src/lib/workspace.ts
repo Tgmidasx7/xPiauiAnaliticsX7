@@ -1,4 +1,4 @@
-import { cameras, demoEvents } from "../data/demo";
+import { allCameras, allEvents } from "../data";
 import type { EventStatus, Preferences, Workspace } from "../data/types";
 
 export const STORAGE_KEY = "spia:workspace:v1";
@@ -22,8 +22,8 @@ export function createWorkspace(): Workspace {
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
-const eventIds = new Set(demoEvents.map((event) => event.id));
-const cameraIds = new Set(cameras.map((camera) => camera.id));
+const eventIds = new Set(allEvents.map((event) => event.id));
+const cameraIds = new Set(allCameras.map((camera) => camera.id));
 const statuses = new Set<EventStatus>(["open", "investigating", "resolved"]);
 
 /** Treat browser storage as untrusted input; a malformed or old payload must not break the app. */

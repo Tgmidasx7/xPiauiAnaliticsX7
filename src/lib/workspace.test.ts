@@ -25,15 +25,23 @@ describe("parseWorkspace", () => {
           sidebarCollapsed: "sim",
           reduceMotion: true,
         },
-        eventOverrides: { "EVT-1048": "resolved", "EVT-9999": "resolved", "EVT-1047": "apagado" },
-        favoriteCameraIds: ["CAM-001", "CAM-001", "CAM-999", 7],
+        eventOverrides: {
+          "EVT-1048": "resolved",
+          "TER-EVT-2048": "investigating",
+          "EVT-9999": "resolved",
+          "EVT-1047": "apagado",
+        },
+        favoriteCameraIds: ["CAM-001", "TER-CAM-001", "CAM-001", "CAM-999", 7],
       }),
     );
     expect(result.preferences.theme).toBe("ciano");
     expect(result.preferences.matrix).toBe(true);
     expect(result.preferences.reduceMotion).toBe(true);
     expect(result.preferences.sidebarCollapsed).toBe(false);
-    expect(result.eventOverrides).toEqual({ "EVT-1048": "resolved" });
-    expect(result.favoriteCameraIds).toEqual(["CAM-001"]);
+    expect(result.eventOverrides).toEqual({
+      "EVT-1048": "resolved",
+      "TER-EVT-2048": "investigating",
+    });
+    expect(result.favoriteCameraIds).toEqual(["CAM-001", "TER-CAM-001"]);
   });
 });

@@ -5,17 +5,27 @@ import { PageHeader } from "../components/ui/page-header";
 import { NetworkStatusBadge } from "../components/ui/badge";
 import { DataTable } from "../components/ui/data-table";
 import type { Column } from "../components/ui/data-table";
+import {
+  ContextNote,
+  DefinitionGrid,
+  InsightPanel,
+  ProgressList,
+  SummaryStrip,
+} from "../components/ui/insights";
 import { Pagination } from "../components/ui/pagination";
 import { Panel } from "../components/ui/panel";
 import { SearchField } from "../components/ui/search-field";
-import { averageLatency, getRegion, networkLinks, regions } from "../data/demo";
+import { getArea } from "../data";
 import type { NetworkLink } from "../data/types";
 import { downloadCsv } from "../lib/csv";
 import { matchesSearch } from "../lib/format";
+import { useScope } from "../state/scope";
 import { useUi } from "../state/ui";
 
 const PAGE_SIZE = 8;
 export function NetworkPage() {
+  const { dataset, scope } = useScope();
+  const { networkLinks, areas, metrics } = dataset;
   const { notify } = useUi();
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("all");
@@ -35,7 +45,8 @@ export function NetworkPage() {
     setStatus("all");
     setPage(1);
   };
-  const healthy = networkLinks.filter((link) => link.status === "healthy").length;
+  const degraded = networkLinks.filter((link) => link.status === "degraded");
+  const meanUptime = networkLinks.reduce((sum, link) => sum + link.uptime, 0) / networkLinks.length;
   const columns: Column<NetworkLink>[] = [
     {
       key: "link",
@@ -48,7 +59,11 @@ export function NetworkPage() {
         </>
       ),
     },
-    { key: "region", label: "Região", render: (row) => getRegion(row.region)?.name },
+    {
+      key: "region",
+      label: scope === "piaui" ? "Região" : "Zona",
+      render: (row) => getArea(dataset, row.region)?.name,
+    },
     {
       key: "latency",
       label: "Latência",
@@ -84,12 +99,22 @@ export function NetworkPage() {
   ];
   const exportLinks = () => {
     downloadCsv(
-      "spia-demo-infraestrutura",
-      ["ID", "Enlace", "Região", "Latência (ms)", "Perda (%)", "Disponibilidade (%)", "Status"],
+      `spia-demo-${dataset.id}-infraestrutura`,
+      [
+        "ID",
+        "Enlace",
+        "Território",
+        "Área",
+        "Latência (ms)",
+        "Perda (%)",
+        "Disponibilidade (%)",
+        "Status",
+      ],
       filtered.map((row) => [
         row.id,
         row.name,
-        getRegion(row.region)?.name,
+        dataset.shortLabel,
+        getArea(dataset, row.region)?.name,
         row.latency,
         row.loss,
         row.uptime,
@@ -101,9 +126,9 @@ export function NetworkPage() {
   return (
     <div className="stack">
       <PageHeader
-        eyebrow="Operação · conectividade"
+        eyebrow={`Operação · conectividade · ${dataset.shortLabel}`}
         title="Infraestrutura"
-        description="Enlaces, latência e disponibilidade sem ruído visual."
+        description="Enlaces, latência, perda e disponibilidade das camadas de vídeo, educação e segurança — sem ruído visual e sem integração real."
         actions={
           <button className="button" onClick={exportLinks} disabled={!filtered.length}>
             <Download size={15} />
@@ -111,28 +136,37 @@ export function NetworkPage() {
           </button>
         }
       />
-      <div className="summary-strip">
-        <div className="summary-item">
-          <span>Latência média</span>
-          <strong>
-            {averageLatency}
-            <small> ms</small>
-          </strong>
-        </div>
-        <div className="summary-item">
-          <span>Enlaces saudáveis</span>
-          <strong>
-            {healthy}
-            <small> / {networkLinks.length}</small>
-          </strong>
-        </div>
-        <div className="summary-item">
-          <span>Limite de latência</span>
-          <strong>
-            60<small> ms</small>
-          </strong>
-        </div>
-      </div>
+      <SummaryStrip
+        label="Resumo de conectividade"
+        items={[
+          {
+            label: "Latência média",
+            value: metrics.averageLatency,
+            unit: "ms",
+            hint: "Limite demonstrativo: 60 ms",
+          },
+          {
+            label: "Enlaces saudáveis",
+            value: metrics.healthyLinks,
+            unit: `/ ${networkLinks.length}`,
+            hint: `${degraded.length} degradado(s) para revisar`,
+          },
+          {
+            label: "Disponibilidade média",
+            value: meanUptime.toFixed(2).replace(".", ","),
+            unit: "%",
+            hint: "Média simples dos enlaces do snapshot",
+          },
+          {
+            label: "Maior perda",
+            value: Math.max(...networkLinks.map((link) => link.loss))
+              .toFixed(2)
+              .replace(".", ","),
+            unit: "%",
+            hint: "Limite demonstrativo: 1%",
+          },
+        ]}
+      />
       <Panel title="Enlaces de rede" subtitle="Limiares: latência < 60 ms · perda < 1%">
         <div className="filter-bar">
           <SearchField
@@ -146,15 +180,15 @@ export function NetworkPage() {
           />
           <select
             className="filter-select"
-            aria-label="Filtrar enlaces por região"
+            aria-label="Filtrar enlaces por área"
             value={region}
             onChange={(event) => {
               setRegion(event.target.value);
               setPage(1);
             }}
           >
-            <option value="all">Todas as regiões</option>
-            {regions.map((item) => (
+            <option value="all">Todas as áreas</option>
+            {areas.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
               </option>
@@ -175,7 +209,7 @@ export function NetworkPage() {
           </select>
         </div>
         <DataTable
-          caption="Enlaces de rede sintéticos"
+          caption={`Enlaces de rede sintéticos · ${dataset.label}`}
           columns={columns}
           rows={visible}
           emptyAction={
@@ -193,6 +227,85 @@ export function NetworkPage() {
           noun="enlaces"
         />
       </Panel>
+      <div className="analytics-grid">
+        <Panel title="Latência por área" subtitle="Média dos enlaces de cada área de referência">
+          <ProgressList
+            items={areas.map((area) => {
+              const links = networkLinks.filter((link) => link.region === area.id);
+              const average = Math.round(
+                links.reduce((sum, link) => sum + link.latency, 0) / links.length,
+              );
+              return {
+                id: area.id,
+                label: area.name,
+                value: average,
+                max: 60,
+                display: `${average} ms`,
+                tone: average >= 45 ? "warning" : "accent",
+              };
+            })}
+            note="Barras usam 60 ms como referência visual. Valores acima do limite são destacados na tabela."
+          />
+        </Panel>
+        <Panel
+          title="Enlaces que pedem atenção"
+          subtitle="Priorize perda de pacotes e disponibilidade antes de interpretar atividade"
+        >
+          <DataTable caption="Enlaces sintéticos degradados" columns={columns} rows={degraded} />
+        </Panel>
+      </div>
+      <InsightPanel
+        title="Leitura de resiliência"
+        subtitle="Como conectar infraestrutura às outras camadas desta versão"
+        items={[
+          {
+            title: "Vídeo depende de enlace",
+            text: "Uma câmera offline pode refletir manutenção do equipamento ou conectividade. Confira o enlace da área antes de atribuir causa; o fixture não estabelece causalidade real.",
+          },
+          {
+            title: "EdTech tem requisitos próprios",
+            text: `Das ${dataset.educationUnits.length} unidades educacionais, ${dataset.educationUnits.filter((unit) => unit.connectivity === "fiber").length} usam fibra sintética e ${dataset.educationUnits.filter((unit) => unit.connectivity === "offline").length} estão sem enlace. A aba Educação detalha tecnologia e banda.`,
+          },
+          {
+            title: "Segurança precisa de continuidade",
+            text: "Bases e ocorrências são agregadas por área. Disponibilidade de rede é um contexto de demonstração, não um canal real de despacho ou emergência.",
+          },
+          {
+            title: "Compare versões, não some tudo",
+            text: "Piauí e Teresina Capital têm inventários independentes. Alternar o recorte preserva a rota, mas troca métricas, enlaces, escolas e bases para evitar dupla contagem.",
+          },
+        ]}
+      />
+      <Panel title="Contrato dos indicadores" subtitle="Definições para leitura e exportação">
+        <DefinitionGrid
+          items={[
+            {
+              term: "Latência",
+              definition:
+                "Tempo simulado de ida e volta do enlace, em milissegundos. Não é medição de rede real.",
+            },
+            {
+              term: "Perda",
+              definition:
+                "Percentual sintético de pacotes não entregues. Acima de 1% o cenário marca atenção.",
+            },
+            {
+              term: "Disponibilidade",
+              definition:
+                "Percentual sintético de tempo operacional do enlace no período de referência.",
+            },
+            {
+              term: "Degradado",
+              definition:
+                "Estado do fixture que combina perda elevada e menor disponibilidade. Não dispara alerta externo.",
+            },
+          ]}
+        />
+      </Panel>
+      <ContextNote>
+        Os limiares são escolhas didáticas desta base, não normas técnicas ou metas oficiais de
+        conectividade.
+      </ContextNote>
       <PageFooter />
     </div>
   );

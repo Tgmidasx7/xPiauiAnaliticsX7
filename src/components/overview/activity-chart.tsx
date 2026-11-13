@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
-import { activityByPeriod } from "../../data/demo";
+import { useScope } from "../../state/scope";
 import { formatNumber } from "../../lib/format";
 import { useMediaQuery } from "../../hooks/use-media-query";
 import { useWorkspace } from "../../state/workspace";
@@ -45,7 +45,8 @@ function ChartTooltip({
 export function ActivityPanel() {
   const [period, setPeriod] = useState<Period>("24h");
   const gradientId = `activity-${useId().replaceAll(":", "")}`;
-  const data = activityByPeriod[period];
+  const { dataset } = useScope();
+  const data = dataset.activityByPeriod[period];
   const total = data.reduce((sum, point) => sum + point.events, 0);
   const { preferences } = useWorkspace();
   const systemReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
@@ -53,7 +54,7 @@ export function ActivityPanel() {
   return (
     <Panel
       title="Atividade operacional"
-      subtitle={`${formatNumber(total)} registros · ${period === "7d" ? "últimos 7 dias" : `últimas ${period.replace("h", " horas")}`}`}
+      subtitle={`${dataset.shortLabel} · ${formatNumber(total)} registros sintéticos · ${period === "7d" ? "últimos 7 dias" : `últimas ${period.replace("h", " horas")}`}`}
       action={
         <SegmentedControl
           value={period}

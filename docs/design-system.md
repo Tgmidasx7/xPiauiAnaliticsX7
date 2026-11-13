@@ -40,7 +40,7 @@ Contraste calculado para texto auxiliar sobre a superfície mais clara (`--color
 
 Escala de 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48. Raios 6/10/14 px e pill apenas onde faz sentido. Sombras restritas a overlays; sem glow em logo, bordas ou indicadores.
 
-- Sidebar desktop: 236 px, recolhida 76 px, altura `100dvh`.
+- Sidebar desktop: 236 px, recolhida 76 px, altura `100dvh`, rolagem interna quando as dez abas não cabem. Seletor territorial no menu; barra compacta no mobile e fallback visível quando a sidebar está recolhida.
 - Navegação mobile: gaveta nativa até 300 px; topbar compacta.
 - Container `dashboard`: duas colunas quando há pelo menos 860 px úteis.
 - Tabelas: cards abaixo de 700 px de container.
@@ -52,7 +52,7 @@ Escala de 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48. Raios 6/10/14 px e pill apenas
 
 CSS legível em camadas: `tokens → base → layout → components → pages → utilities → responsive`. Nomes descritivos por bloco (`camera-card`, `panel-header`, `terminal-output`), modificadores `--` (`button--primary`, `badge--warning`) e utilitários explícitos (`u-mt-4`, `sr-only`). Estados usam atributos ARIA/nativos em vez de classes crípticas.
 
-Componentes-base: `PageHeader`, `Panel`, `Badge`, `Button` por classe, `SegmentedControl`, `SearchField`, `DataTable`, `Pagination`, `Dialog`, `Switch`, `Toast`. Ícones são SVG Lucide; ícones decorativos têm `aria-hidden`. Posicionamento geométrico do mapa é a exceção explícita para estilos calculados em JS; não usar estilos inline estáticos.
+Componentes-base: `PageHeader`, `Panel`, `Badge`, `Button` por classe, `SegmentedControl`, `SearchField`, `DataTable`, `Pagination`, `Dialog`, `Switch`, `Toast`, `SummaryStrip`, `ProgressList`, `InsightPanel`, `DefinitionGrid`, `ContextNote`. Ícones são SVG Lucide; ícones decorativos têm `aria-hidden`. Posicionamento geométrico do mapa é a exceção explícita para estilos calculados em JS; não usar estilos inline estáticos.
 
 ## Movimento
 
@@ -60,4 +60,4 @@ Componentes-base: `PageHeader`, `Panel`, `Badge`, `Button` por classe, `Segmente
 
 ## Demonstração e proveniência
 
-Um badge global persistente identifica o ambiente. Rótulos específicos permanecem onde há risco de interpretação incorreta: “Prévia sintética” nas câmeras, “sem precisão cartográfica” no mapa e identificadores `DEMO-*` em veículos. Não multiplicar banners genéricos de demonstração pela interface.
+Um badge global persistente identifica o ambiente. As camadas EdTech e segurança repetem apenas salvaguardas específicas necessárias ao contexto, sem multiplicar banners genéricos. Rótulos específicos permanecem onde há risco de interpretação incorreta: “Prévia sintética” nas câmeras, “sem precisão cartográfica” no mapa e identificadores `DEMO-*` em veículos. Não multiplicar banners genéricos de demonstração pela interface.

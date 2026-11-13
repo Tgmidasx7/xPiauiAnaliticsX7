@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 import type { ReactNode } from "react";
-import { cameras, demoEvents } from "../data/demo";
+import { allCameras, allEvents } from "../data";
+import { useScope } from "./scope";
 import type { EventStatus, OperationalEvent, Preferences, Workspace } from "../data/types";
 import { createWorkspace, loadWorkspace, saveWorkspace } from "../lib/workspace";
 
@@ -10,8 +11,8 @@ type Action =
   | { type: "favorite"; id: string }
   | { type: "reset" };
 
-const validCameraIds = new Set(cameras.map((camera) => camera.id));
-const validEventIds = new Set(demoEvents.map((event) => event.id));
+const validCameraIds = new Set(allCameras.map((camera) => camera.id));
+const validEventIds = new Set(allEvents.map((event) => event.id));
 
 function reducer(state: Workspace, action: Action): Workspace {
   switch (action.type) {
@@ -46,6 +47,7 @@ interface WorkspaceContextValue {
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
+  const { dataset } = useScope();
   const [workspace, dispatch] = useReducer(reducer, undefined, loadWorkspace);
   useEffect(() => {
     saveWorkspace(workspace);
@@ -57,11 +59,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const events = useMemo(
     () =>
-      demoEvents.map((event) => ({
+      dataset.events.map((event) => ({
         ...event,
         status: workspace.eventOverrides[event.id] ?? event.status,
       })),
-    [workspace.eventOverrides],
+    [dataset.events, workspace.eventOverrides],
   );
   const setPreference = useCallback(
     <K extends keyof Preferences>(key: K, value: Preferences[K]) => {

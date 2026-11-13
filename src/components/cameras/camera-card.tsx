@@ -1,6 +1,7 @@
 import { ArrowUpRight, Star } from "lucide-react";
 import type { Camera } from "../../data/types";
-import { getRegion } from "../../data/demo";
+import { getArea } from "../../data";
+import { useScope } from "../../state/scope";
 import { useUi } from "../../state/ui";
 import { useWorkspace } from "../../state/workspace";
 import { CameraStatusBadge } from "../ui/badge";
@@ -8,6 +9,7 @@ import { CameraPreview } from "./camera-preview";
 
 export function CameraCard({ camera }: { camera: Camera }) {
   const { openCamera } = useUi();
+  const { dataset } = useScope();
   const { favoriteCameraIds, toggleFavorite } = useWorkspace();
   const favorite = favoriteCameraIds.includes(camera.id);
   return (
@@ -18,7 +20,7 @@ export function CameraCard({ camera }: { camera: Camera }) {
           <div>
             <h3>{camera.name}</h3>
             <p className="camera-meta">
-              {getRegion(camera.region)?.name} · {camera.latency} ms
+              {getArea(dataset, camera.region)?.name} · {camera.latency} ms
             </p>
           </div>
           <button

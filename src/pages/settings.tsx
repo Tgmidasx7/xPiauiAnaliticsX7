@@ -3,11 +3,15 @@ import { useState } from "react";
 import { PageFooter } from "../components/ui/page-footer";
 import { PageHeader } from "../components/ui/page-header";
 import { Dialog } from "../components/ui/dialog";
+import { DefinitionGrid, InsightPanel } from "../components/ui/insights";
 import { Panel } from "../components/ui/panel";
 import { SegmentedControl } from "../components/ui/segmented-control";
 import { Switch } from "../components/ui/switch";
+import { datasets } from "../data";
 import type { ThemeName } from "../data/types";
 import { useMediaQuery } from "../hooks/use-media-query";
+import { STORAGE_KEY } from "../lib/workspace";
+import { useScope } from "../state/scope";
 import { useUi } from "../state/ui";
 import { useWorkspace } from "../state/workspace";
 
@@ -17,7 +21,8 @@ const themes: { value: ThemeName; label: string; caption: string }[] = [
   { value: "ambar", label: "Âmbar", caption: "Neutro quente" },
 ];
 export function SettingsPage() {
-  const { preferences, setPreference, resetWorkspace } = useWorkspace();
+  const { dataset, scope } = useScope();
+  const { preferences, setPreference, resetWorkspace, favoriteCameraIds, events } = useWorkspace();
   const { notify } = useUi();
   const [resetOpen, setResetOpen] = useState(false);
   const coarse = useMediaQuery("(pointer: coarse)");
@@ -25,12 +30,18 @@ export function SettingsPage() {
   const systemReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const matrixAvailable = desktop && !coarse && !systemReduced && !preferences.reduceMotion;
   const matrixEnabled = preferences.matrix && matrixAvailable;
+  const localChanges = events.filter(
+    (event, index) => event.status !== dataset.events[index]?.status,
+  ).length;
+  const localFavorites = favoriteCameraIds.filter((id) =>
+    dataset.cameras.some((camera) => camera.id === id),
+  ).length;
   return (
     <div className="stack">
       <PageHeader
-        eyebrow="Sistema · experiência de uso"
+        eyebrow={`Sistema · experiência de uso · ${dataset.shortLabel}`}
         title="Preferências"
-        description="Uma identidade consistente, ajustada ao seu dispositivo e ao seu ritmo."
+        description="Uma identidade consistente, ajustada ao seu dispositivo e ao seu ritmo. Preferências valem para as duas versões; dados e favoritos permanecem separados por território."
       />
       <div className="settings-grid">
         <Panel
@@ -92,11 +103,10 @@ export function SettingsPage() {
           <div className="panel-body">
             <div className="setting-row">
               <div>
-                <h3>Reduzir animações</h3>
+                <h3>Movimento reduzido</h3>
                 <p>
-                  {systemReduced
-                    ? "Ativo pelo sistema operacional. A preferência do sistema tem prioridade."
-                    : "Desativa animações de gráficos e prévias de câmeras."}
+                  Respeita a preferência do sistema e pode ser reforçada aqui. Gráficos deixam de
+                  animar; a textura ambiente é desligada.
                 </p>
               </div>
               <Switch
@@ -155,7 +165,7 @@ export function SettingsPage() {
             <div className="setting-row">
               <div>
                 <h3>Restaurar padrão</h3>
-                <p>Remove favoritos e alterações de eventos deste navegador.</p>
+                <p>Remove favoritos e alterações de eventos das duas versões deste navegador.</p>
               </div>
               <button className="button button--danger" onClick={() => setResetOpen(true)}>
                 <RotateCcw size={15} />
@@ -165,6 +175,130 @@ export function SettingsPage() {
           </div>
         </Panel>
       </div>
+      <Panel
+        title="Versões territoriais"
+        subtitle="O seletor no menu troca o inventário completo preservando a aba atual"
+      >
+        <div className="panel-body scope-settings-grid">
+          {Object.values(datasets).map((item) => (
+            <article
+              className={`scope-settings-card ${item.id === scope ? "scope-settings-card--active" : ""}`}
+              key={item.id}
+            >
+              <p className="eyebrow">{item.id === scope ? "Versão ativa" : "Versão paralela"}</p>
+              <h3>{item.label}</h3>
+              <p>{item.description}</p>
+              <dl className="layer-facts">
+                <div>
+                  <dt>Áreas de referência</dt>
+                  <dd>{item.areas.length}</dd>
+                </div>
+                <div>
+                  <dt>Câmeras / eventos</dt>
+                  <dd>
+                    {item.cameras.length} / {item.events.length}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Unidades educacionais</dt>
+                  <dd>{item.educationUnits.length}</dd>
+                </div>
+                <div>
+                  <dt>Ocorrências / bases</dt>
+                  <dd>
+                    {item.securityOccurrences.length} / {item.securityUnits.length}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </Panel>
+      <div className="analytics-grid">
+        <Panel title="Seu estado local" subtitle="O que este navegador guarda nesta demonstração">
+          <DefinitionGrid
+            items={[
+              {
+                term: "Chave de armazenamento",
+                definition: `${STORAGE_KEY} · localStorage versionado, validado na leitura e sem envio a servidor.`,
+              },
+              {
+                term: "Preferências",
+                definition: `Tema ${preferences.theme}, densidade ${preferences.density === "compact" ? "compacta" : "normal"}, layout de câmeras ${preferences.cameraLayout === "grid" ? "em grade" : "em lista"}. Matrix ${preferences.matrix ? "solicitado" : "desligado"}; movimento reduzido ${preferences.reduceMotion ? "ativado" : "desativado"}.`,
+              },
+              {
+                term: "Favoritos",
+                definition: `${favoriteCameraIds.length} identificadores válidos no total; ${localFavorites} pertencem a ${dataset.shortLabel}. IDs de outra versão não aparecem no inventário atual.`,
+              },
+              {
+                term: "Eventos alterados",
+                definition: `${localChanges} alterações de status visíveis em ${dataset.shortLabel}. Overrides são aceitos apenas para IDs conhecidos das duas versões.`,
+              },
+            ]}
+          />
+        </Panel>
+        <InsightPanel
+          title="Acessibilidade e toque"
+          subtitle="Compromissos mantidos nas dez abas e nos dois recortes"
+          items={[
+            {
+              title: "Teclado primeiro",
+              text: "F2 ou Ctrl+K abrem o terminal sem depender de tecla morta ABNT2. Diálogos nativos preservam foco, fecham com Escape e permitem clique no backdrop.",
+            },
+            {
+              title: "Toque sem zoom acidental",
+              text: "Inputs usam pelo menos 16 px em dispositivos de toque. Botões, links de ação e controles compactos respeitam alvo mínimo de 44 px nesse contexto.",
+            },
+            {
+              title: "Leitura antes de decoração",
+              text: "Texto secundário mantém contraste AA, fonte mínima de 11 px e tabelas com caption/scope. Abaixo de 700 px de container, tabelas viram cards.",
+            },
+            {
+              title: "Movimento opcional",
+              text: "Matrix começa desligado, não roda em toque ou movimento reduzido e pausa com overlays. Gráficos oferecem tabela alternativa e respeitam a preferência de movimento.",
+            },
+          ]}
+        />
+      </div>
+      <Panel
+        title="Governança da demonstração"
+        subtitle="O que precisaria existir antes de qualquer integração real"
+      >
+        <DefinitionGrid
+          items={[
+            {
+              term: "Origem dos dados",
+              definition:
+                "Fixtures determinísticos em src/data. Nenhuma chamada a API oficial, câmera, plataforma escolar ou sistema de segurança acontece em execução.",
+            },
+            {
+              term: "Minimização",
+              definition:
+                "Não coletar dados pessoais de estudantes, vítimas, agentes ou motoristas. Identificadores DEMO e nomes de unidades são fictícios.",
+            },
+            {
+              term: "Autenticação e autorização",
+              definition:
+                "Uma versão operacional exige identidade no servidor, perfis e permissões por território/camada, auditoria e revisão de base legal.",
+            },
+            {
+              term: "Segurança da informação",
+              definition:
+                "Transporte protegido, gestão de segredos fora do front-end, logs auditáveis, retenção definida e resposta a incidentes antes de produção.",
+            },
+            {
+              term: "Fontes locais",
+              definition:
+                "Inter e JetBrains Mono são empacotadas no build. Não há rastreamento, fontes remotas ou APIs externas em tempo de execução.",
+            },
+            {
+              term: "Restauração",
+              definition:
+                "Limpar o estado local remove preferências, favoritos e overrides deste navegador. Não afeta dados externos porque não há integração.",
+            },
+          ]}
+        />
+      </Panel>
       <div className="notice-inline">
         <Monitor size={16} />
         <span>
@@ -188,7 +322,7 @@ export function SettingsPage() {
               onClick={() => {
                 resetWorkspace();
                 setResetOpen(false);
-                notify("Preferências, favoritos e eventos restaurados ao padrão.");
+                notify("Preferências, favoritos e eventos das duas versões restaurados ao padrão.");
               }}
             >
               Restaurar padrão
@@ -197,8 +331,9 @@ export function SettingsPage() {
         }
       >
         <p className="detail-description">
-          Esta ação remove seus favoritos, alterações de status e preferências salvas neste
-          navegador. O conjunto sintético original será restaurado. Nenhum dado externo é afetado.
+          Esta ação remove favoritos, alterações de status e preferências salvos neste navegador
+          para Piauí e Teresina Capital. Os conjuntos sintéticos originais serão restaurados. Nenhum
+          dado externo é afetado.
         </p>
       </Dialog>
     </div>

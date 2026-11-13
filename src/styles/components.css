@@ -120,11 +120,21 @@
     font-size: var(--text-xs);
   }
   .section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 4px;
+  }
+  .section-heading .eyebrow {
+    margin-bottom: 6px;
+  }
+  .section-heading h2 {
+    font-size: var(--text-lg);
+    font-weight: 570;
+    letter-spacing: -0.02em;
+  }
+  .section-heading > p:not(.eyebrow) {
+    margin-top: 6px;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    max-width: 72ch;
   }
   .count-label {
     color: var(--color-text-subtle);
@@ -474,7 +484,7 @@
   }
   .summary-strip {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     gap: 10px;
   }
   .summary-item {
@@ -499,6 +509,12 @@
     color: var(--color-text-subtle);
     font-size: var(--text-sm);
     font-weight: 450;
+  }
+  .summary-hint {
+    margin-top: 6px;
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+    line-height: 1.5;
   }
   .theme-option {
     position: relative;

@@ -3,10 +3,12 @@ import {
   CarFront,
   Cctv,
   ChartColumn,
+  GraduationCap,
   LayoutDashboard,
   Map,
   Network,
   Settings2,
+  ShieldCheck,
 } from "lucide-react";
 
 export const navigation = [
@@ -16,6 +18,8 @@ export const navigation = [
   { path: "/veiculos", label: "Veículos", icon: CarFront, group: "Operação" },
   { path: "/infraestrutura", label: "Infraestrutura", icon: Network, group: "Operação" },
   { path: "/territorios", label: "Territórios", icon: Map, group: "Inteligência" },
+  { path: "/educacao", label: "Educação · EdTech", icon: GraduationCap, group: "Inteligência" },
+  { path: "/seguranca", label: "Segurança pública", icon: ShieldCheck, group: "Inteligência" },
   { path: "/analises", label: "Análises", icon: ChartColumn, group: "Inteligência" },
   { path: "/preferencias", label: "Preferências", icon: Settings2, group: "Sistema" },
 ] as const;

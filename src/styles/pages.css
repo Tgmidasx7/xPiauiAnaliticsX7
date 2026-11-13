@@ -740,3 +740,194 @@
     background: var(--color-accent);
   }
 }
+
+@layer pages {
+  /* Expanded territory, EdTech and public-security sections. */
+  .layer-highlight > svg {
+    display: block;
+    margin-bottom: 12px;
+  }
+  .layer-highlight > strong {
+    display: block;
+    font-size: var(--text-metric);
+    font-weight: 570;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+  }
+  .layer-highlight > p {
+    margin-top: 8px;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    max-width: 48ch;
+  }
+  .layer-facts {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+  }
+  .layer-facts div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .layer-facts dt {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+  .layer-facts dd {
+    margin: 0;
+    font: 500 var(--text-sm)/1.5 var(--font-mono);
+    text-align: right;
+  }
+  .insight-list {
+    display: grid;
+    gap: 18px;
+    list-style: none;
+    margin: 0;
+  }
+  .insight-list li {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .insight-index {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--color-accent);
+    font-size: var(--text-xs);
+  }
+  .insight-list h3 {
+    font-size: var(--text-sm);
+    font-weight: 550;
+  }
+  .insight-list p {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.65;
+  }
+  .definition-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    margin: 0;
+  }
+  .definition-grid div {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .definition-grid div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  .definition-grid dt {
+    font-size: var(--text-sm);
+    font-weight: 550;
+  }
+  .definition-grid dd {
+    margin: 4px 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.65;
+  }
+  .area-profile-grid,
+  .program-grid,
+  .scope-settings-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--panel-gap);
+  }
+  .area-profile-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .area-profile-heading svg {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .area-profile-heading h3,
+  .program-card h3,
+  .scope-settings-card h3 {
+    font-size: var(--text-md);
+    font-weight: 570;
+  }
+  .area-profile-heading p,
+  .program-focus,
+  .scope-settings-card > p:not(.eyebrow) {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+  .area-profile-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .area-profile-metrics dt {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+  .area-profile-metrics dd {
+    margin: 4px 0 0;
+    font: 500 var(--text-md)/1.4 var(--font-mono);
+  }
+  .area-profile-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+  }
+  .program-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .program-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 16px 0 12px;
+  }
+  .program-metrics dt {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+  .program-metrics dd {
+    margin: 2px 0 0;
+    font: 500 var(--text-md)/1.4 var(--font-mono);
+  }
+  .program-id {
+    margin-top: 12px;
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+  .scope-settings-card {
+    padding: 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+  }
+  .scope-settings-card--active {
+    border-color: rgb(var(--color-accent-rgb) / 45%);
+    background: rgb(var(--color-accent-rgb) / 5%);
+  }
+  .scope-settings-card .eyebrow {
+    margin-bottom: 8px;
+  }
+}

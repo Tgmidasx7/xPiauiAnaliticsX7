@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { useMediaQuery } from "../../hooks/use-media-query";
 import { useUi } from "../../state/ui";
 import { useWorkspace } from "../../state/workspace";
+import { useScope } from "../../state/scope";
 import { CameraDetailDialog } from "../cameras/camera-detail-dialog";
 import { EventDetailDialog } from "../events/event-detail-dialog";
 import { TerminalDialog } from "../terminal/terminal-dialog";
@@ -12,12 +13,14 @@ import { Toast } from "../ui/toast";
 import { MatrixBackground } from "./matrix-background";
 import { navigation } from "./navigation";
 import { SidebarContent } from "./sidebar";
+import { ScopeSwitcher } from "./scope-switcher";
 
 export function AppLayout() {
   const desktop = useMediaQuery("(min-width: 1024px)");
   const systemReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const { pathname } = useLocation();
   const { preferences, events } = useWorkspace();
+  const { dataset, path } = useScope();
   const { mobileNavOpen, setMobileNavOpen, toggleTerminal } = useUi();
   const current = navigation.find((item) => item.path === pathname);
   const pending = events.filter((event) => event.status !== "resolved").length;
@@ -33,8 +36,8 @@ export function AppLayout() {
       preferences.reduceMotion || systemReduced ? "reduce" : "full";
   }, [preferences.sidebarCollapsed, preferences.reduceMotion, systemReduced]);
   useEffect(() => {
-    document.title = `${current?.label ?? "Página não encontrada"} · S.P.I.A.`;
-  }, [current?.label]);
+    document.title = `${current?.label ?? "Página não encontrada"} · ${dataset.shortLabel} · S.P.I.A.`;
+  }, [current?.label, dataset.shortLabel]);
 
   return (
     <div className="app-shell">
@@ -68,11 +71,11 @@ export function AppLayout() {
             >
               <Menu size={21} />
             </button>
-            <Link to="/" className="topbar-brand" aria-label="S.P.I.A. — Visão geral">
+            <Link to={path("/")} className="topbar-brand" aria-label="S.P.I.A. — Visão geral">
               S.P.I.A.
             </Link>
             <div className="breadcrumb" aria-label="Localização">
-              <span>Piauí</span>
+              <span>{dataset.shortLabel}</span>
               <ChevronRight size={13} />
               <span className="breadcrumb-current">{current?.label ?? "Navegação"}</span>
             </div>
@@ -101,7 +104,7 @@ export function AppLayout() {
             </button>
             <Link
               className="icon-button notification-link"
-              to="/eventos?status=pending"
+              to={path("/eventos?status=pending")}
               aria-label={`Eventos: ${pending} pendentes`}
             >
               <Bell size={18} />
@@ -109,8 +112,13 @@ export function AppLayout() {
             </Link>
           </div>
         </header>
+        <div
+          className={`scope-bar ${preferences.sidebarCollapsed ? "scope-bar--desktop-fallback" : ""}`}
+        >
+          <ScopeSwitcher compact />
+        </div>
         <main id="main-content" className="content" tabIndex={-1}>
-          <Outlet />
+          <Outlet key={`${dataset.id}-${pathname}`} />
         </main>
       </div>
       <CameraDetailDialog />

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { UiProvider, useUi } from "../../state/ui";
+import { ScopeProvider } from "../../state/scope";
 import { WorkspaceProvider } from "../../state/workspace";
 import { TerminalDialog } from "./terminal-dialog";
 
@@ -18,11 +19,13 @@ function Harness() {
 const setup = () =>
   render(
     <MemoryRouter>
-      <WorkspaceProvider>
-        <UiProvider>
-          <Harness />
-        </UiProvider>
-      </WorkspaceProvider>
+      <ScopeProvider>
+        <WorkspaceProvider>
+          <UiProvider>
+            <Harness />
+          </UiProvider>
+        </WorkspaceProvider>
+      </ScopeProvider>
     </MemoryRouter>,
   );
 

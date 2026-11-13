@@ -1,6 +1,7 @@
 import { Info, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getCamera, getRegion } from "../../data/demo";
+import { getArea, getScopedCamera } from "../../data";
+import { useScope } from "../../state/scope";
 import { useUi } from "../../state/ui";
 import { useWorkspace } from "../../state/workspace";
 import { CameraStatusBadge } from "../ui/badge";
@@ -9,9 +10,10 @@ import { CameraPreview } from "./camera-preview";
 
 export function CameraDetailDialog() {
   const { selectedCameraId, closeDialogs } = useUi();
+  const { dataset, path } = useScope();
   const { favoriteCameraIds, toggleFavorite, events } = useWorkspace();
   const navigate = useNavigate();
-  const camera = selectedCameraId ? getCamera(selectedCameraId) : undefined;
+  const camera = selectedCameraId ? getScopedCamera(dataset, selectedCameraId) : undefined;
   const favorite = camera ? favoriteCameraIds.includes(camera.id) : false;
   const related = camera
     ? events.filter((event) => event.cameraId === camera.id && event.status !== "resolved").length
@@ -36,7 +38,7 @@ export function CameraDetailDialog() {
             <button
               className="button button--primary"
               onClick={() => {
-                navigate(`/eventos?camera=${camera.id}`);
+                navigate(path(`/eventos?camera=${camera.id}`));
                 closeDialogs();
               }}
             >
@@ -59,7 +61,8 @@ export function CameraDetailDialog() {
             <div>
               <dt>Região</dt>
               <dd>
-                {getRegion(camera.region)?.name} · {getRegion(camera.region)?.reference}
+                {getArea(dataset, camera.region)?.name} ·{" "}
+                {getArea(dataset, camera.region)?.reference}
               </dd>
             </div>
             <div>

@@ -1,8 +1,10 @@
-import { PanelLeftClose, PanelLeftOpen, Settings2, X } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useScope } from "../../state/scope";
 import { useWorkspace } from "../../state/workspace";
 import { useUi } from "../../state/ui";
 import { navigation } from "./navigation";
+import { ScopeSwitcher } from "./scope-switcher";
 
 export function BrandMark() {
   return (
@@ -23,6 +25,7 @@ export function BrandMark() {
 
 export function SidebarContent({ desktop = false }: { desktop?: boolean }) {
   const { preferences, setPreference, events } = useWorkspace();
+  const { dataset, path } = useScope();
   const { setMobileNavOpen } = useUi();
   const collapsed = desktop && preferences.sidebarCollapsed;
   const pending = events.filter((event) => event.status !== "resolved").length;
@@ -31,13 +34,13 @@ export function SidebarContent({ desktop = false }: { desktop?: boolean }) {
       {desktop ? (
         <NavLink
           className="brand"
-          to="/"
+          to={path("/")}
           aria-label={collapsed ? "S.P.I.A. — Visão geral" : undefined}
         >
           <BrandMark />
           <span className="brand-copy">
             <span className="brand-name">S.P.I.A.</span>
-            <span className="brand-caption">Inteligência territorial</span>
+            <span className="brand-caption">{dataset.shortLabel}</span>
           </span>
         </NavLink>
       ) : (
@@ -46,7 +49,7 @@ export function SidebarContent({ desktop = false }: { desktop?: boolean }) {
             <BrandMark />
             <span>
               <span className="brand-name">S.P.I.A.</span>
-              <span className="brand-caption">Inteligência territorial</span>
+              <span className="brand-caption">{dataset.shortLabel}</span>
             </span>
           </div>
           <button
@@ -59,26 +62,27 @@ export function SidebarContent({ desktop = false }: { desktop?: boolean }) {
           </button>
         </div>
       )}
+      {!collapsed && <ScopeSwitcher compact />}
       <nav aria-label="Navegação principal">
-        {(["Operação", "Inteligência"] as const).map((group) => (
+        {(["Operação", "Inteligência", "Sistema"] as const).map((group) => (
           <div key={group}>
             <p className="eyebrow workspace-label">{group}</p>
             <ul className="nav-list">
               {navigation
                 .filter((item) => item.group === group)
-                .map(({ path, label, icon: Icon }) => (
-                  <li key={path}>
+                .map(({ path: routePath, label, icon: Icon }) => (
+                  <li key={routePath}>
                     <NavLink
                       className="nav-link"
-                      to={path}
-                      end={path === "/"}
+                      to={path(routePath)}
+                      end={routePath === "/"}
                       title={collapsed ? label : undefined}
                       aria-label={collapsed ? label : undefined}
                       onClick={() => setMobileNavOpen(false)}
                     >
                       <Icon size={18} strokeWidth={1.7} />
                       <span className="nav-label">{label}</span>
-                      {path === "/eventos" && pending > 0 && (
+                      {routePath === "/eventos" && pending > 0 && (
                         <span className="nav-count" aria-label={`${pending} pendentes`}>
                           {pending}
                         </span>
@@ -91,20 +95,6 @@ export function SidebarContent({ desktop = false }: { desktop?: boolean }) {
         ))}
       </nav>
       <div className="sidebar-bottom">
-        <ul className="nav-list">
-          <li>
-            <NavLink
-              className="nav-link"
-              to="/preferencias"
-              title={collapsed ? "Preferências" : undefined}
-              aria-label={collapsed ? "Preferências" : undefined}
-              onClick={() => setMobileNavOpen(false)}
-            >
-              <Settings2 size={18} strokeWidth={1.7} />
-              <span className="nav-label">Preferências</span>
-            </NavLink>
-          </li>
-        </ul>
         {desktop && (
           <button
             className="button button--ghost sidebar-collapse"

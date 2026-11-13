@@ -9,14 +9,15 @@ export function parseCommand(input: string): ParsedCommand {
 
 export const commandHelp = [
   "help                  Lista de comandos",
-  "status                Indicadores do cenário",
+  "status                Indicadores do território ativo",
+  "scope [piaui|teresina]  Consulta ou troca a versão territorial",
   "cameras [busca]        Até 6 câmeras correspondentes",
   "events                Até 6 eventos pendentes",
   "favorites             Câmeras favoritas",
-  "open <rota>           overview | cameras | eventos | veiculos | rede | territorios | analises | preferencias",
+  "open <rota>           overview | cameras | eventos | veiculos | rede | territorios | educacao | seguranca | analises | preferencias",
   "theme <nome>          verde | ciano | ambar",
   "matrix <on|off>        Textura ambiente (somente desktop)",
-  "export <events|cameras>  Exporta CSV sintético",
+  "export <events|cameras|education|security>  Exporta CSV sintético do território",
   "clear                 Limpa a saída",
 ].join("\n");
 
@@ -30,6 +31,10 @@ const routes: Record<string, string> = {
   rede: "/infraestrutura",
   infraestrutura: "/infraestrutura",
   territorios: "/territorios",
+  educacao: "/educacao",
+  education: "/educacao",
+  seguranca: "/seguranca",
+  security: "/seguranca",
   analises: "/analises",
   preferencias: "/preferencias",
   settings: "/preferencias",

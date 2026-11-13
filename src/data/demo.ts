@@ -1,4 +1,5 @@
 import type {
+  ActivityPeriod,
   ActivityPoint,
   Camera,
   NetworkLink,
@@ -12,11 +13,35 @@ import type {
 export const SNAPSHOT_ISO = "2026-11-13T12:00:00.000Z";
 
 export const regions: Region[] = [
-  { id: "capital", name: "Capital", reference: "Teresina", position: { x: 40, y: 31 } },
-  { id: "norte", name: "Norte", reference: "Campo Maior", position: { x: 60, y: 23 } },
-  { id: "litoral", name: "Litoral", reference: "Parnaíba", position: { x: 73, y: 10 } },
-  { id: "centro", name: "Centro", reference: "Floriano · Picos", position: { x: 59, y: 53 } },
-  { id: "sul", name: "Sul", reference: "Bom Jesus", position: { x: 51, y: 80 } },
+  {
+    id: "capital",
+    scope: "piaui",
+    name: "Capital",
+    reference: "Teresina",
+    position: { x: 40, y: 31 },
+  },
+  {
+    id: "norte",
+    scope: "piaui",
+    name: "Norte",
+    reference: "Campo Maior",
+    position: { x: 60, y: 23 },
+  },
+  {
+    id: "litoral",
+    scope: "piaui",
+    name: "Litoral",
+    reference: "Parnaíba",
+    position: { x: 73, y: 10 },
+  },
+  {
+    id: "centro",
+    scope: "piaui",
+    name: "Centro",
+    reference: "Floriano · Picos",
+    position: { x: 59, y: 53 },
+  },
+  { id: "sul", scope: "piaui", name: "Sul", reference: "Bom Jesus", position: { x: 51, y: 80 } },
 ];
 
 const cameraNames: Record<RegionId, string[]> = {
@@ -82,6 +107,7 @@ export const cameras: Camera[] = regionCounts.flatMap(({ id, count }, groupIndex
     const index = offset + localIndex;
     return {
       id: `CAM-${String(index + 1).padStart(3, "0")}`,
+      scope: "piaui",
       name: cameraNames[id][localIndex] ?? `Corredor ${index + 1}`,
       region: id,
       status: index === 17 ? "maintenance" : index === 26 ? "offline" : "online",
@@ -118,26 +144,40 @@ const eventTemplates = [
     description:
       "Veículo fictício identificado em corredor exclusivo no conjunto de demonstração. Nenhuma placa real é utilizada.",
   },
+  {
+    title: "Conectividade escolar reduzida",
+    category: "Educação",
+    description:
+      "Indicador agregado sintético de conectividade em unidade educacional de referência. Não há dados de estudantes.",
+  },
+  {
+    title: "Ocorrência integrada de segurança",
+    category: "Segurança Pública",
+    description:
+      "Registro agregado sintético para demonstrar triagem, despacho e acompanhamento. Não corresponde a ocorrência real.",
+  },
 ] as const;
 
-export const demoEvents: OperationalEvent[] = Array.from({ length: 24 }, (_, index) => {
+export const demoEvents: OperationalEvent[] = Array.from({ length: 30 }, (_, index) => {
   const template = eventTemplates[index % eventTemplates.length]!;
   const camera = cameras[(index * 5) % cameras.length]!;
   return {
     id: `EVT-${String(1048 - index)}`,
+    scope: "piaui",
     ...template,
-    severity: index < 3 ? "critical" : index < 10 ? "warning" : "info",
-    status: index < 5 ? "open" : index < 8 ? "investigating" : "resolved",
+    severity: index < 3 ? "critical" : index < 11 ? "warning" : "info",
+    status: index < 6 ? "open" : index < 10 ? "investigating" : "resolved",
     cameraId: camera.id,
     region: camera.region,
     timestamp: new Date(Date.parse(SNAPSHOT_ISO) - index * 7 * 60_000).toISOString(),
   };
 });
 
-export const vehicleReadings: VehicleReading[] = Array.from({ length: 12 }, (_, index) => {
+export const vehicleReadings: VehicleReading[] = Array.from({ length: 18 }, (_, index) => {
   const camera = cameras[(index * 3) % cameras.length]!;
   return {
     id: `LEI-${String(2084 - index)}`,
+    scope: "piaui",
     vehicle: `DEMO-${String(index + 1).padStart(4, "0")}`,
     type: (["Automóvel", "Motocicleta", "Ônibus", "Caminhão"] as const)[index % 4]!,
     cameraId: camera.id,
@@ -145,14 +185,15 @@ export const vehicleReadings: VehicleReading[] = Array.from({ length: 12 }, (_, 
     direction: index % 3 === 0 ? "Saída" : "Entrada",
     speed: 28 + ((index * 7) % 35),
     timestamp: new Date(Date.parse(SNAPSHOT_ISO) - index * 43_000).toISOString(),
-    review: index === 2 || index === 7,
+    review: index === 2 || index === 7 || index === 13,
   };
 });
 
-const latencies = [28, 34, 41, 38, 52, 46, 39, 44, 31, 57, 48, 46];
+const latencies = [28, 34, 41, 38, 52, 46, 39, 44, 31, 57, 48, 46, 36, 42, 50, 33];
 export const networkLinks: NetworkLink[] = latencies.map((latency, index) => ({
   id: `ENL-${String(index + 1).padStart(3, "0")}`,
-  name: `${regions[index % regions.length]!.reference.split(" · ")[0]} → Núcleo ${index < 6 ? "01" : "02"}`,
+  scope: "piaui",
+  name: `${regions[index % regions.length]!.reference.split(" · ")[0]} → Núcleo ${index < 8 ? "01" : "02"}`,
   region: regions[index % regions.length]!.id,
   latency,
   loss: index === 9 ? 1.8 : Number(((index % 4) * 0.03).toFixed(2)),
@@ -162,7 +203,7 @@ export const networkLinks: NetworkLink[] = latencies.map((latency, index) => ({
 
 const hourlyEvents = [8, 6, 12, 9, 18, 14, 24, 20, 31, 23, 28, 18, 26];
 const hourlyPrevious = [6, 8, 9, 7, 12, 11, 17, 15, 22, 18, 20, 15, 21];
-export const activityByPeriod: Record<"6h" | "24h" | "7d", ActivityPoint[]> = {
+export const activityByPeriod: Record<ActivityPeriod, ActivityPoint[]> = {
   "6h": hourlyEvents.slice(-7).map((events, index) => ({
     label: `${String(6 + index).padStart(2, "0")}:00`,
     events,

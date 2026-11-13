@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
-import { getRegion } from "../../data/demo";
+import { getArea } from "../../data";
+import { useScope } from "../../state/scope";
 import type { OperationalEvent } from "../../data/types";
 import { formatTime } from "../../lib/format";
 import { useUi } from "../../state/ui";
@@ -17,6 +18,7 @@ export function EventsTable({
   emptyAction?: React.ReactNode;
 }) {
   const { openEvent } = useUi();
+  const { dataset } = useScope();
   const titleColumn: Column<OperationalEvent> = {
     key: "event",
     label: "Evento",
@@ -42,7 +44,7 @@ export function EventsTable({
           {
             key: "region",
             label: "Região",
-            render: (event: OperationalEvent) => getRegion(event.region)?.name,
+            render: (event: OperationalEvent) => getArea(dataset, event.region)?.name,
           } satisfies Column<OperationalEvent>,
         ]
       : []),

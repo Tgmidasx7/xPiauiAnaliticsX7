@@ -1,5 +1,6 @@
 import { CheckCheck, Cctv, Info, Play, RotateCcw } from "lucide-react";
-import { getCamera, getRegion } from "../../data/demo";
+import { getArea, getScopedCamera } from "../../data";
+import { useScope } from "../../state/scope";
 import { formatDate, formatTime } from "../../lib/format";
 import { useUi } from "../../state/ui";
 import { useWorkspace } from "../../state/workspace";
@@ -8,9 +9,10 @@ import { Dialog } from "../ui/dialog";
 
 export function EventDetailDialog() {
   const { selectedEventId, closeDialogs, openCamera, notify } = useUi();
+  const { dataset } = useScope();
   const { events, setEventStatus } = useWorkspace();
   const event = events.find((item) => item.id === selectedEventId);
-  const camera = event ? getCamera(event.cameraId) : undefined;
+  const camera = event ? getScopedCamera(dataset, event.cameraId) : undefined;
   const update = (status: "open" | "investigating" | "resolved") => {
     if (!event) return;
     setEventStatus(event.id, status);
@@ -71,7 +73,7 @@ export function EventDetailDialog() {
             </div>
             <div>
               <dt>Região</dt>
-              <dd>{getRegion(event.region)?.name}</dd>
+              <dd>{getArea(dataset, event.region)?.name}</dd>
             </div>
             <div>
               <dt>Registro</dt>

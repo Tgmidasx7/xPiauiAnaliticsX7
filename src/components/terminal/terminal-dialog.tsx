@@ -1,7 +1,8 @@
 import { CornerDownLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { averageLatency, cameras, getRegion, onlineCameras } from "../../data/demo";
+import { getArea, isScopeId } from "../../data";
+import { useScope } from "../../state/scope";
 import type { ThemeName } from "../../data/types";
 import { useMediaQuery } from "../../hooks/use-media-query";
 import { downloadCsv } from "../../lib/csv";
@@ -25,6 +26,8 @@ const initialLine: Line = {
 export function TerminalDialog() {
   const { terminalOpen, toggleTerminal } = useUi();
   const { events, preferences, setPreference, favoriteCameraIds } = useWorkspace();
+  const { dataset, scope, setScope, path } = useScope();
+  const { cameras, metrics } = dataset;
   const navigate = useNavigate();
   const coarse = useMediaQuery("(pointer: coarse)");
   const desktop = useMediaQuery("(min-width: 1024px)");
@@ -112,15 +115,35 @@ export function TerminalDialog() {
       case "status":
         output.push({
           kind: "output",
-          text: `Câmeras disponíveis: ${onlineCameras}/${cameras.length}\nEventos pendentes: ${events.filter((event) => event.status !== "resolved").length}\nLatência média: ${averageLatency} ms\nTema: ${preferences.theme} · dados sintéticos`,
+          text: `Território: ${dataset.label}\nCâmeras disponíveis: ${metrics.onlineCameras}/${cameras.length}\nEventos pendentes: ${events.filter((event) => event.status !== "resolved").length}\nLatência média: ${metrics.averageLatency} ms\nEscolas conectadas: ${metrics.educationConnectedPct}% · ocorrências abertas: ${metrics.securityOpen}\nTema: ${preferences.theme} · dados sintéticos`,
         });
         break;
+      case "scope": {
+        const requested = args[0]?.toLowerCase();
+        if (!requested) {
+          output.push({
+            kind: "output",
+            text: `Versão ativa: ${dataset.label}\nDisponíveis: piaui | teresina\nUso: scope teresina`,
+          });
+        } else if (isScopeId(requested)) {
+          append(output);
+          setScope(requested);
+          append([
+            {
+              kind: "success",
+              text: `Versão territorial alterada para ${requested === "piaui" ? "Piauí" : "Teresina Capital"}.`,
+            },
+          ]);
+          return;
+        } else error("Versões disponíveis: piaui, teresina.");
+        break;
+      }
       case "cameras": {
         const query = args.join(" ");
         const found = cameras
           .filter((camera) =>
             matchesSearch(
-              `${camera.id} ${camera.name} ${getRegion(camera.region)?.name ?? ""}`,
+              `${camera.id} ${camera.name} ${getArea(dataset, camera.region)?.name ?? ""}`,
               query,
             ),
           )
@@ -146,18 +169,19 @@ export function TerminalDialog() {
       case "favorites":
         output.push({
           kind: "output",
-          text: favoriteCameraIds.length
+          text: favoriteCameraIds.filter((id) => cameras.some((camera) => camera.id === id)).length
             ? favoriteCameraIds
+                .filter((id) => cameras.some((camera) => camera.id === id))
                 .map((id) => `${id}  ${cameras.find((camera) => camera.id === id)?.name}`)
                 .join("\n")
-            : "Nenhuma câmera favoritada. Use a estrela nos cards.",
+            : `Nenhuma câmera favoritada em ${dataset.shortLabel}. Use a estrela nos cards.`,
         });
         break;
       case "open": {
         const route = resolveRoute(args[0] ?? "");
         if (route) {
           append(output);
-          navigate(route);
+          navigate(path(route));
           toggleTerminal(false);
           return;
         }
@@ -188,30 +212,66 @@ export function TerminalDialog() {
       case "export": {
         if (args[0] === "events") {
           downloadCsv(
-            "spia-demo-eventos",
+            `spia-demo-${scope}-eventos`,
             ["ID", "Evento", "Status", "Região", "Horário UTC-3"],
             events.map((event) => [
               event.id,
               event.title,
               event.status,
-              getRegion(event.region)?.name,
+              getArea(dataset, event.region)?.name,
               formatTime(event.timestamp),
             ]),
           );
           success(`${events.length} eventos sintéticos exportados.`);
         } else if (args[0] === "cameras") {
           downloadCsv(
-            "spia-demo-cameras",
+            `spia-demo-${scope}-cameras`,
             ["ID", "Nome", "Região", "Status"],
             cameras.map((camera) => [
               camera.id,
               camera.name,
-              getRegion(camera.region)?.name,
+              getArea(dataset, camera.region)?.name,
               camera.status,
             ]),
           );
           success(`${cameras.length} câmeras sintéticas exportadas.`);
-        } else error("Use export events ou export cameras.");
+        } else if (args[0] === "education") {
+          downloadCsv(
+            `spia-demo-${scope}-educacao`,
+            [
+              "ID",
+              "Unidade",
+              "Área",
+              "Etapa",
+              "Conectividade",
+              "Dispositivos disponíveis",
+              "Prioridade",
+            ],
+            dataset.educationUnits.map((unit) => [
+              unit.id,
+              unit.name,
+              getArea(dataset, unit.areaId)?.name,
+              unit.stage,
+              unit.connectivity,
+              unit.devicesAvailable,
+              unit.status,
+            ]),
+          );
+          success(`${dataset.educationUnits.length} unidades educacionais sintéticas exportadas.`);
+        } else if (args[0] === "security") {
+          downloadCsv(
+            `spia-demo-${scope}-seguranca`,
+            ["ID", "Natureza", "Área", "Situação", "Resposta (min)"],
+            dataset.securityOccurrences.map((item) => [
+              item.id,
+              item.nature,
+              getArea(dataset, item.areaId)?.name,
+              item.status,
+              item.responseMinutes,
+            ]),
+          );
+          success(`${dataset.securityOccurrences.length} ocorrências sintéticas exportadas.`);
+        } else error("Use export events, cameras, education ou security.");
         break;
       }
       default:

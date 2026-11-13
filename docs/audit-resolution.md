@@ -22,14 +22,14 @@ A auditoria descreve uma v4 que não existe neste checkout. Os itens abaixo fora
 | 2.2 Marca confundida com sucesso | Acento de marca separado de sucesso; badges sempre com ícone e texto                   |
 | 4.3 Fontes não garantidas        | Inter e JetBrains Mono variáveis auto-hospedadas, `font-display: swap`                 |
 | 4.4 Glifos de interface          | Ícones SVG Lucide; decorativos ocultos de leitores de tela                             |
-| 6.5 / 7.2 Navegação densa/fixa   | Sidebar 236/76 px, gaveta mobile, topbar com poucos controles e badge compacto         |
+| 6.5 / 7.2 Navegação densa/fixa   | Sidebar 236/76 px com rolagem, gaveta mobile, topbar compacta e seletor territorial    |
 | 6.3 Alvos pequenos               | 44 px mínimos em touch para botões, segmentos, links de ação e comandos rápidos        |
 
 ## P2
 
 | Item                    | Tratamento nesta base                                                        |
 | ----------------------- | ---------------------------------------------------------------------------- |
-| 4.5 KPIs sem hierarquia | Um primário, três secundários e quatro indicadores adicionais sob demanda    |
+| 4.5 KPIs sem hierarquia | Um primário, três secundários e oito indicadores adicionais sob demanda      |
 | 6.6 Tabelas largas      | Cards semânticos abaixo de 700 px de container; cabeçalhos sticky no desktop |
 | 6.4 Canvas fora da tela | IntersectionObserver + agendador único + paginação; sem RAF por card         |
 | 5.1 / 5.2 CSS ilegível  | Arquivos formatados, camadas e nomes descritivos; Prettier no CI             |

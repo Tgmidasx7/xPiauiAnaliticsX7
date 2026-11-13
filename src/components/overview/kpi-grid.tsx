@@ -6,26 +6,26 @@ import {
   ChevronDown,
   CircleAlert,
   Gauge,
+  GraduationCap,
+  ShieldCheck,
   Timer,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  averageLatency,
-  cameraAvailability,
-  cameras,
-  networkLinks,
-  onlineCameras,
-  regions,
-} from "../../data/demo";
+import { formatNumber } from "../../lib/format";
+import { useScope } from "../../state/scope";
 import { useWorkspace } from "../../state/workspace";
 
 export function KpiGrid() {
+  const { dataset, path } = useScope();
   const { events } = useWorkspace();
+  const { metrics, cameras, networkLinks, areas } = dataset;
   const pending = events.filter((event) => event.status !== "resolved");
   const critical = pending.filter((event) => event.severity === "critical").length;
-  const healthyLinks = networkLinks.filter((link) => link.status === "healthy").length;
   return (
-    <section aria-label="Indicadores principais do cenário sintético" className="stack">
+    <section
+      aria-label={`Indicadores principais · ${dataset.label} · cenário sintético`}
+      className="stack"
+    >
       <div className="kpi-grid">
         <article className="kpi kpi--primary">
           <div>
@@ -34,11 +34,11 @@ export function KpiGrid() {
               Câmeras operacionais
             </p>
             <strong className="kpi-value">
-              {onlineCameras}
+              {metrics.onlineCameras}
               <small> / {cameras.length}</small>
             </strong>
             <p className="kpi-foot">
-              <span className="text-success">{cameraAvailability}%</span> de disponibilidade
+              <span className="text-success">{metrics.cameraAvailability}%</span> de disponibilidade
             </p>
           </div>
           <div className="availability-ring" aria-hidden="true">
@@ -59,13 +59,13 @@ export function KpiGrid() {
                 stroke="var(--color-accent)"
                 strokeWidth="4"
                 strokeLinecap="round"
-                strokeDasharray={`${(2 * Math.PI * 34 * onlineCameras) / cameras.length} ${2 * Math.PI * 34}`}
+                strokeDasharray={`${(2 * Math.PI * 34 * metrics.onlineCameras) / cameras.length} ${2 * Math.PI * 34}`}
               />
             </svg>
-            <span>{cameraAvailability}%</span>
+            <span>{metrics.cameraAvailability}%</span>
           </div>
         </article>
-        <Link className="kpi" to="/eventos?status=pending">
+        <Link className="kpi" to={path("/eventos?status=pending")}>
           <p className="kpi-label">
             <CircleAlert size={14} />
             Eventos pendentes
@@ -76,24 +76,24 @@ export function KpiGrid() {
             <span className="text-danger">{critical} críticos</span> para revisar
           </p>
         </Link>
-        <Link className="kpi" to="/veiculos">
+        <Link className="kpi" to={path("/veiculos")}>
           <p className="kpi-label">
             <CarFront size={14} />
             Leituras de veículos
           </p>
-          <strong className="kpi-value">1.284</strong>
+          <strong className="kpi-value">{formatNumber(metrics.vehicleReadingsVolume)}</strong>
           <p className="kpi-foot">
             <Activity size={12} />
-            Volume registrado no dia
+            Volume sintético do dia
           </p>
         </Link>
-        <Link className="kpi" to="/infraestrutura">
+        <Link className="kpi" to={path("/infraestrutura")}>
           <p className="kpi-label">
             <Gauge size={14} />
             Latência média
           </p>
           <strong className="kpi-value">
-            {averageLatency}
+            {metrics.averageLatency}
             <small> ms</small>
           </strong>
           <p className="kpi-foot">
@@ -103,22 +103,37 @@ export function KpiGrid() {
       </div>
       <details className="additional-metrics">
         <summary>
-          <span>Mais indicadores · rede, cobertura e resposta</span>
+          <span>Mais indicadores · rede, educação e segurança</span>
           <ChevronDown size={14} />
         </summary>
         <dl className="additional-metrics-grid">
           <div className="additional-metric">
             <dt>Enlaces saudáveis</dt>
             <dd>
-              {healthyLinks}
+              {metrics.healthyLinks}
               <small className="subtle"> / {networkLinks.length}</small>
             </dd>
           </div>
           <div className="additional-metric">
-            <dt>Regiões cobertas</dt>
+            <dt>Áreas cobertas</dt>
             <dd>
-              {regions.length}
-              <small className="subtle"> / {regions.length}</small>
+              {areas.length}
+              <small className="subtle"> / {areas.length}</small>
+            </dd>
+          </div>
+          <div className="additional-metric">
+            <dt>
+              <GraduationCap size={14} /> Escolas conectadas
+            </dt>
+            <dd>{metrics.educationConnectedPct}%</dd>
+          </div>
+          <div className="additional-metric">
+            <dt>
+              <ShieldCheck size={14} /> Bases disponíveis
+            </dt>
+            <dd>
+              {metrics.securityAvailableUnits}
+              <small className="subtle"> / {dataset.securityUnits.length}</small>
             </dd>
           </div>
           <div className="additional-metric">
@@ -126,11 +141,19 @@ export function KpiGrid() {
             <dd>{events.length - pending.length}</dd>
           </div>
           <div className="additional-metric">
-            <dt>Resposta média</dt>
+            <dt>Ocorrências em aberto</dt>
+            <dd>{metrics.securityOpen}</dd>
+          </div>
+          <div className="additional-metric">
+            <dt>Resposta média sintética</dt>
             <dd className="row">
               <Timer size={16} />
-              4m 32s
+              {metrics.securityAverageResponse} min
             </dd>
+          </div>
+          <div className="additional-metric">
+            <dt>Educadores em formação</dt>
+            <dd>{formatNumber(metrics.educationTeachersTrained)}</dd>
           </div>
         </dl>
       </details>

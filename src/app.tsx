@@ -3,9 +3,11 @@ import { Link, Route, Routes } from "react-router-dom";
 import { AppLayout } from "./components/layout/app-layout";
 import { AnalyticsPage } from "./pages/analytics";
 import { CamerasPage } from "./pages/cameras";
+import { EducationPage } from "./pages/education";
 import { EventsPage } from "./pages/events";
 import { NetworkPage } from "./pages/network";
 import { OverviewPage } from "./pages/overview";
+import { SecurityPage } from "./pages/security";
 import { SettingsPage } from "./pages/settings";
 import { TerritoriesPage } from "./pages/territories";
 import { VehiclesPage } from "./pages/vehicles";
@@ -34,6 +36,8 @@ export function App() {
         <Route path="veiculos" element={<VehiclesPage />} />
         <Route path="infraestrutura" element={<NetworkPage />} />
         <Route path="territorios" element={<TerritoriesPage />} />
+        <Route path="educacao" element={<EducationPage />} />
+        <Route path="seguranca" element={<SecurityPage />} />
         <Route path="analises" element={<AnalyticsPage />} />
         <Route path="preferencias" element={<SettingsPage />} />
         <Route path="*" element={<NotFoundPage />} />

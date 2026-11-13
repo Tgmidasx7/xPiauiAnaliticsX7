@@ -10,9 +10,9 @@ Stack: React + TypeScript estrito, Vite, React Router, Recharts, Lucide e CSS em
 
 | Camada                  | Responsabilidade                            | Regra                                                                        |
 | ----------------------- | ------------------------------------------- | ---------------------------------------------------------------------------- |
-| `data/`                 | Tipos de domínio e fixtures determinísticos | Dados sintéticos explícitos; nenhuma chamada de rede escondida em componente |
+| `data/`                 | Tipos, datasets por território e geradores  | Dados sintéticos explícitos; nenhuma chamada de rede escondida em componente |
 | `lib/`                  | Funções puras e adaptadores de navegador    | CSV, busca, datas, validação de storage e agendamento de animação            |
-| `state/`                | Preferências, alterações locais e overlays  | Persistência versionada e validada; ações tipadas                            |
+| `state/`                | Escopo, preferências, alterações e overlays | Persistência versionada e validada; ações tipadas                            |
 | `components/ui/`        | Componentes reutilizáveis                   | Sem conhecimento de regras de negócio                                        |
 | `components/<domínio>/` | Componentes de domínio                      | Recebem dados e usam ações dos providers                                     |
 | `pages/`                | Composição, filtros e paginação             | Uma página por rota; sem CSS inline estático                                 |
@@ -20,13 +20,15 @@ Stack: React + TypeScript estrito, Vite, React Router, Recharts, Lucide e CSS em
 
 ## Estado
 
-`WorkspaceProvider` mantém preferências, overrides de status e favoritos. O reducer aceita apenas identificadores conhecidos. `parseWorkspace` trata o storage como entrada não confiável e descarta versões/campos inválidos. Falhas de acesso ao storage não impedem o uso em memória.
+`ScopeProvider` lê `territorio` da query string (`piaui` padrão, `teresina` paralelo), expõe o `Dataset` ativo e helpers de link que preservam o recorte. Ao trocar a versão, filtros específicos de área/câmera/status são limpos; a aba atual é preservada.
+
+`WorkspaceProvider` mantém preferências, overrides de status e favoritos. O reducer aceita apenas identificadores conhecidos das duas versões; a lista de eventos exposta é sempre a do dataset ativo. `parseWorkspace` trata o storage como entrada não confiável e descarta versões/campos inválidos. Falhas de acesso ao storage não impedem o uso em memória.
 
 `UiProvider` controla terminal, gaveta, detalhes e toast. Cada `Dialog` registra sua presença enquanto aberto; o fundo Matrix consulta essa contagem e pausa com qualquer diálogo nativo aberto. Ações de navegação fecham overlays concorrentes do shell.
 
 ## Navegação
 
-Rotas: `/`, `/cameras`, `/eventos`, `/veiculos`, `/infraestrutura`, `/territorios`, `/analises`, `/preferencias`. Filtros de origem usam query string (`region`, `camera`, `status`) para serem compartilháveis. A hospedagem estática precisa devolver `index.html` para rotas desconhecidas; a aplicação então exibe seu 404 interno.
+Rotas: `/`, `/cameras`, `/eventos`, `/veiculos`, `/infraestrutura`, `/territorios`, `/educacao`, `/seguranca`, `/analises`, `/preferencias`. Filtros de origem usam query string (`region`, `area`, `camera`, `status`) e `territorio` para serem compartilháveis. Links internos passam pelo helper de escopo para não vazar filtros entre versões. A hospedagem estática precisa devolver `index.html` para rotas desconhecidas; a aplicação então exibe seu 404 interno.
 
 ## Desktop e mobile
 
@@ -53,3 +55,4 @@ O parser separa nome e argumentos; o executor usa um switch fechado. Não existe
 4. Execute `npm run check` e `npm audit --audit-level=moderate`.
 5. Verifique teclado, 320/390/1366 px, movimento reduzido e overlays antes de entregar.
 6. Não adicione dados reais ao repositório. Integrações precisam de uma camada de API explícita e revisão de segurança/privacidade.
+7. Ao adicionar uma aba, inclua-a em `navigation.ts`, `app.tsx`, ajuda do terminal e testes de dados/escopo; mantenha as duas versões completas.

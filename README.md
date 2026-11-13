@@ -1,6 +1,6 @@
 # S.P.I.A. · Inteligência territorial do Piauí
 
-Base **v5 de consolidação** para um painel operacional demonstrativo: identidade visual estável, leitura progressiva, acessibilidade e layout responsivo antes de novas integrações.
+Base **v5 de consolidação** para um painel operacional demonstrativo em **duas versões territoriais paralelas — Piauí e Teresina Capital**. Dez abas, camadas de operação, EdTech e segurança pública, identidade visual estável, leitura progressiva e acessibilidade antes de novas integrações.
 
 > **Estado real do repositório:** o checkout inicial continha apenas um README. Esta entrega cria uma base nova e organizada; não é uma migração da v4, cujo código não estava disponível. Todos os dados e prévias são sintéticos. Não há backend, autenticação, câmeras reais ou integração operacional.
 
@@ -26,9 +26,11 @@ Scripts individuais: `typecheck`, `lint`, `test`, `test:watch`, `format`, `forma
 
 ## Publicação
 
-O site é publicado pelo workflow **Publish site** no GitHub Pages:
+O workflow **Publish site** está pronto para publicar no GitHub Pages em:
 
 **https://tgmidasx7.github.io/xPiauiAnaliticsX7/**
+
+> A URL permanente depende de habilitar Pages no repositório (`Settings → Pages → GitHub Actions`). Enquanto isso, use `npm run preview` ou o preview online da sessão.
 
 O workflow gera o build com `VITE_BASE_PATH=/xPiauiAnaliticsX7/` e `VITE_STATIC_HOST=true`. Nesse modo a navegação usa hash (`/#/cameras`), para que links internos e recarregamentos funcionem sem regras de rewrite no servidor. O preview local continua usando rotas normais em `/`.
 
@@ -43,15 +45,19 @@ Em outra hospedagem estática com fallback para `index.html`, basta não definir
 
 ## O que está disponível
 
-- **Visão geral:** um KPI primário, três secundários, indicadores adicionais sob demanda, gráfico com períodos e tabela acessível, cobertura regional e saúde da infraestrutura.
-- **Câmeras:** 36 registros sintéticos, busca sem acentos, filtros, favoritos locais, grade/lista, paginação e detalhes. Prévias são esquemas locais, não vídeo.
-- **Eventos:** filtros por status/severidade/região/câmera, análise e resolução persistidas apenas no navegador.
-- **Veículos:** leituras com identificadores `DEMO-*`, filtros e exportação; nenhuma placa real.
-- **Infraestrutura:** enlaces, latência, perda, disponibilidade e filtros.
-- **Territórios e análises:** mapa esquemático explicitamente não cartográfico, comparação regional e distribuição de severidade.
-- **Preferências:** três acentos, densidade, menu recolhido, movimento reduzido, textura Matrix opcional e restauração do padrão.
-- **Terminal local:** `F2` ou `Ctrl+K` (`Cmd+K` também funciona), `Esc` para fechar, histórico com setas e comandos sem `eval`. Digite `help`.
-- **Exportação CSV:** UTF-8 com BOM, separador `;`, aspas escapadas e neutralização de fórmulas de planilha.
+- **Versões paralelas:** seletor Piauí/Teresina Capital no menu e em barra compacta no mobile; a query `?territorio=teresina` preserva a aba e limpa filtros de área ao trocar. Cada versão tem inventário, métricas e briefing próprios.
+- **Visão geral:** KPI primário, secundários, indicadores adicionais de rede/educação/segurança, gráfico com períodos e tabela acessível, mapa esquemático, pulso por área e leitura orientada do snapshot.
+- **Câmeras:** 36 registros estaduais e 25 municipais, busca sem acentos, filtros, favoritos locais, grade/lista, paginação, detalhes, disponibilidade por área e fila de manutenção. Prévias são esquemas locais, não vídeo.
+- **Eventos:** 30 registros estaduais e 28 municipais; filtros por status/severidade/categoria/área/câmera, análise e resolução persistidas apenas no navegador, distribuições e fluxo de tratamento.
+- **Veículos:** leituras com identificadores `DEMO-*`, filtros por tipo/direção/área/revisão, exportação, composição da amostra e entradas/saídas por área; nenhuma placa real.
+- **Infraestrutura:** enlaces, latência, perda, disponibilidade, filtros, leitura por área e enlaces degradados.
+- **Territórios:** mapa esquemático explicitamente não cartográfico, tabela comparativa e perfis por área com vídeo, eventos, escolas, bases e ocorrências.
+- **Educação · EdTech:** 40 unidades estaduais e 30 municipais; conectividade, banda, dispositivos, laboratórios, formação docente, uso de plataforma, prioridade, programas e salvaguardas de privacidade.
+- **Segurança pública:** 42 ocorrências estaduais e 36 municipais; ciclo registrado/despachado/atendimento/encerrado, bases integradas, resposta por área, programas e protocolo de leitura responsável. Não é canal de emergência.
+- **Análises:** matriz comparativa por área cruzando operação, EdTech e segurança, distribuições, perguntas de trabalho e notas de método.
+- **Preferências:** três acentos, densidade, menu recolhido, movimento reduzido, Matrix opcional, restauração, estado local e governança da demonstração.
+- **Terminal local:** `F2` ou `Ctrl+K` (`Cmd+K` também funciona), `Esc`, histórico com setas, comandos sem `eval`, incluindo `scope`, `open educacao`, `open seguranca` e exportações por camada. Digite `help`.
+- **Exportação CSV:** UTF-8 com BOM, separador `;`, aspas escapadas, neutralização de fórmulas e nome de arquivo por território/camada.
 
 ## Fundamentos da v5
 
@@ -78,11 +84,11 @@ src/
     overview/             KPIs, gráfico, mapa e saúde
     terminal/             console local e parser
     ui/                   componentes reutilizáveis
-  data/                   tipos e fixtures sintéticos determinísticos
+  data/                   tipos, datasets Piauí/Teresina e geradores sintéticos determinísticos
   hooks/                  assinaturas de media queries
   lib/                    CSV, formatação, persistência e animação
   pages/                  uma página por área funcional
-  state/                  preferências, dados locais e overlays
+  state/                  escopo territorial, preferências, dados locais e overlays
   styles/                 tokens, base, layout, componentes, páginas e responsivo
   test/                   setup e testes de contrato visual
 public/                   favicon
@@ -99,9 +105,9 @@ docs/                     arquitetura, design system, auditoria e validação
 
 ## Dados e segurança
 
-Não versionar dados reais, credenciais ou gravações. `src/data/demo.ts` é a fronteira atual de dados; uma integração futura exige contrato de API, autenticação/autorização no servidor, minimização de dados, auditoria e revisão de privacidade. O painel atual **não deve ser apresentado como sistema operacional em produção**.
+Não versionar dados reais, credenciais ou gravações. `src/data/` (`demo.ts`, `teresina.ts`, `generators.ts`, `index.ts`) é a fronteira atual de dados; uma integração futura exige contrato de API, autenticação/autorização no servidor, minimização de dados, auditoria e revisão de privacidade. O painel atual **não deve ser apresentado como sistema operacional em produção**.
 
-Preferências, favoritos e alterações de eventos usam `localStorage` com chave versionada `spia:workspace:v1`. Payloads inválidos são descartados. Isso não é autenticação nem armazenamento seguro de dados sensíveis.
+Preferências, favoritos e alterações de eventos usam `localStorage` com chave versionada `spia:workspace:v1`. IDs estaduais e municipais são distintos; favoritos/overrides são validados contra o inventário conjunto, mas cada tela exibe apenas o território ativo. Payloads inválidos são descartados. Isso não é autenticação nem armazenamento seguro de dados sensíveis.
 
 ## Dependências
 
