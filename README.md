@@ -30,7 +30,7 @@ O workflow **Publish site** está pronto para publicar no GitHub Pages em:
 
 **https://tgmidasx7.github.io/xPiauiAnaliticsX7/**
 
-> A URL permanente depende de habilitar Pages no repositório (`Settings → Pages → GitHub Actions`). Enquanto isso, use `npm run preview` ou o preview online da sessão.
+A publicação está ativa: o workflow gera o artefato estático e o GitHub Pages serve o site. Para desenvolvimento local, use `npm run dev` ou `npm run preview`.
 
 O workflow gera o build com `VITE_BASE_PATH=/xPiauiAnaliticsX7/` e `VITE_STATIC_HOST=true`. Nesse modo a navegação usa hash (`/#/cameras`), para que links internos e recarregamentos funcionem sem regras de rewrite no servidor. O preview local continua usando rotas normais em `/`.
 
