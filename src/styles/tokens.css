@@ -1,0 +1,100 @@
+@layer tokens {
+  :root {
+    color-scheme: dark;
+
+    /* Surface hierarchy: intentionally opaque, including over the optional ambient canvas. */
+    --color-background: #0b1110;
+    --color-background-rgb: 11, 17, 16;
+    --color-surface: #121c18;
+    --color-surface-rgb: 18, 28, 24;
+    --color-surface-raised: #19251f;
+    --color-surface-raised-rgb: 25, 37, 31;
+    --color-surface-hover: #203027;
+    --color-border: #2a3b32;
+    --color-border-rgb: 42, 59, 50;
+    --color-border-strong: #40584a;
+    --color-black-rgb: 0, 0, 0;
+
+    /* Brand accent is NOT the success signal. Status always includes an icon and a text label. */
+    --color-accent: #79d4b0;
+    --color-accent-rgb: 121, 212, 176;
+    --color-on-accent: #0b1912;
+    --color-success: #7bd49a;
+    --color-success-rgb: 123, 212, 154;
+    --color-warning: #e6bf7c;
+    --color-warning-rgb: 230, 191, 124;
+    --color-danger: #f2939c;
+    --color-danger-rgb: 242, 147, 156;
+    --color-info: #83cbdc;
+    --color-info-rgb: 131, 203, 220;
+    --color-analytics: #baa7e0;
+    --color-analytics-rgb: 186, 167, 224;
+
+    /* Fixed identity swatches used only by the theme picker. */
+    --color-theme-verde: #79d4b0;
+    --color-theme-ciano: #83cbd6;
+    --color-theme-ambar: #dec18a;
+
+    --color-text: #e4eee8;
+    --color-text-rgb: 228, 238, 232;
+    --color-text-muted: #a4b7ab;
+    --color-text-muted-rgb: 164, 183, 171;
+    --color-text-subtle: #91a89a;
+    --color-text-subtle-rgb: 145, 168, 154;
+
+    --font-sans: "Inter Variable", Inter, system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono Variable", "Cascadia Code", monospace;
+    --text-xs: 0.6875rem; /* 11px: absolute minimum, reserved for secondary metadata. */
+    --text-sm: 0.8125rem; /* 13px */
+    --text-base: 0.875rem; /* 14px */
+    --text-md: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.375rem;
+    --text-heading: clamp(1.5rem, 1.2rem + 0.8vw, 2rem);
+    --text-metric: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-pill: 999px;
+    --touch-target: 44px;
+    --sidebar-width: 236px;
+    --sidebar-current-width: var(--sidebar-width);
+    --topbar-height: 68px;
+    --panel-gap: var(--space-5);
+    --panel-padding: var(--space-5);
+    --shadow-dialog: 0 24px 80px rgb(var(--color-black-rgb) / 45%);
+    --transition-fast: 140ms ease;
+  }
+
+  :root[data-theme="ciano"] {
+    --color-accent: #83cbd6;
+    --color-accent-rgb: 131, 203, 214;
+    --color-on-accent: #091719;
+  }
+
+  :root[data-theme="ambar"] {
+    --color-accent: #dec18a;
+    --color-accent-rgb: 222, 193, 138;
+    --color-on-accent: #1c1609;
+  }
+
+  :root[data-density="compact"] {
+    --panel-gap: var(--space-3);
+    --panel-padding: var(--space-4);
+  }
+
+  :root[data-sidebar="collapsed"] {
+    --sidebar-current-width: 76px;
+  }
+}
