@@ -26,22 +26,15 @@ Scripts individuais: `typecheck`, `lint`, `test`, `test:watch`, `format`, `forma
 
 ## Publicação
 
-O workflow **Publish site** está pronto para publicar no GitHub Pages em:
+Site no ar em:
 
 **https://tgmidasx7.github.io/xPiauiAnaliticsX7/**
 
-A publicação está ativa: o workflow gera o artefato estático e o GitHub Pages serve o site. Para desenvolvimento local, use `npm run dev` ou `npm run preview`.
+O site publicado é o `index.html` estático da raiz — o código do **APP PIAUI ANALITICS** (`app-piaui-analitcs2026`): dashboard "Piauí Teresina Analytics" em arquivo único (HTML/CSS/JS), com gráficos Chart.js via CDN e fontes do Google Fonts. Por ser um único arquivo, sem build e sem caminhos absolutos, ele funciona tanto na publicação por branch do GitHub Pages quanto no workflow **Publish site** (que apenas copia o arquivo para o artefato).
 
-O workflow gera o build com `VITE_BASE_PATH=/xPiauiAnaliticsX7/` e `VITE_STATIC_HOST=true`. Nesse modo a navegação usa hash (`/#/cameras`), para que links internos e recarregamentos funcionem sem regras de rewrite no servidor. O preview local continua usando rotas normais em `/`.
+A implementação React em `src/` (S.P.I.A. v5, com testes) permanece no repositório como base de desenvolvimento; `npm run build` gera um `dist/index.html` equivalente para prévia local. Para desenvolvimento local, use `npm run dev` ou `npm run preview`.
 
-Para reproduzir o build público localmente:
-
-```bash
-VITE_BASE_PATH=/xPiauiAnaliticsX7/ VITE_STATIC_HOST=true npm run build
-VITE_BASE_PATH=/xPiauiAnaliticsX7/ VITE_STATIC_HOST=true npm run preview
-```
-
-Em outra hospedagem estática com fallback para `index.html`, basta não definir `VITE_STATIC_HOST`; ajuste `VITE_BASE_PATH` apenas quando o site for servido em um subcaminho.
+> Correção de página em branco: o GitHub Pages deste repositório serve a raiz do branch (fonte _legacy_), não o artefato do Actions. Como o `index.html` anterior era a entrada do Vite (referenciando `/src/main.tsx`), o navegador recebia TypeScript e a página ficava em branco. Com o app em arquivo único na raiz, a página carrega em qualquer modo de publicação.
 
 ## O que está disponível
 
